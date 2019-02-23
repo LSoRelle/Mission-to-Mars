@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
-
-
 # Declare Dependencies 
 from bs4 import BeautifulSoup as bs
 from splinter import Browser
@@ -11,122 +8,94 @@ import pandas as pd
 import requests
 
 
-# # For Mac Users 
-# - trying to be helpful with grading, ;)
-
-# In[2]:
-
-
-# Choose the executable path to driver 
-#executable_path = {'executable_path': 'chromedriver.exe'}
-#browser = Browser('chrome', **executable_path, headless=False)
-
-
-# # For Windows Users 
-# - because I don't mac =D
-
-# In[3]:
-
 def init_browser():
+    # # For Mac Users 
+    # - trying to be helpful with grading, ;)
+
+    # Choose the executable path to driver 
+    #executable_path = {'executable_path': 'chromedriver.exe'}
+    #browser = Browser('chrome', **executable_path, headless=False)
+
+    # # For Windows Users 
+    # - because I don't mac =D
+
     # Choose the executable path to driver 
     # 'chromedriver.exe'
     executable_path = {'executable_path': 'C:/Users/39319362/Desktop/SMDA201811DATA2/01-Lesson-Plans/12-Web-Scraping-and-Document-Databases/2/Activities/08-Stu_Splinter/Solved/chromedriver.exe'}
-    return Browser('chrome', **executable_path, headless=False)
+    return Browser("chrome", **executable_path, headless=False)
 
 
-# In[4]:
-def scrape_info():
-    browser = init_browser() 
-    scrape_info = {}
+scrape_info = {'news_title':news_title,
+    'news_content':news_content,  
+    'featured_img_url':featured_img_url, 
+    'weather_tweet':weather_tweetr, 
+    'mars_facts_html':mars_facts_html, 
+    'hemisphere_image_urls':hemisphere_image_urls}
 
+def scrape_info_news():
+    browser = init_browser()
 
-    # # Time to Code! 
-
-    # In[5]:
-
-
+    # Create a dictonary for results of scrape
+    mars_scrape = {}
     # NASA Mars News
     # * Scrape the NASA Mars News Site and collect the latest News Title and Paragraph Text. 
     #   Assign the text to variables that you can reference later.
-       
+   
     # Set url for use in scrape
     NASA_Mars_url = "https://mars.nasa.gov/news/"
     browser.visit(NASA_Mars_url)
-        
+    
     # Scrape page into Soup
     soup = bs(browser.html,"html.parser")
-        
+    
     # Get title and text for latest news based on html tags 
     latest_news = soup.find_all("div",{"class":"list_text"})[0]
-        
-    # Store data in a dictionary
 
     # Pull the Title and Content apart to make it easier to call in the html
     news_title = latest_news.find("div",{"class":"content_title"}).text
     news_content = latest_news.find("div",{"class":"article_teaser_body"}).text
+    
+    return ('news_title', 'news_content')
 
-    # Print to verify everything is there
-    print (news_title)
-    print (news_content)
-
-    # Close the browser after scraping
-    #browser.quit()
-    scrape_info['news_title']=news_title
-    scrape_info['news_content']=news_content
+scrape_info_news()
 
 
-    # In[6]:
+def scrape_info_feature():
+    browser = init_browser()
 
-
-    # JPL Mars Space Images - Featured Image
-    # * Visit the url for JPL Featured Space Image here.
-    # * Use splinter to navigate the site and find the image url for the current Featured Mars Image 
-    #   and assign the url string to a variable called featured_image_url.
-    # * Make sure to find the image url to the full size .jpg image.
-    # * Make sure to save a complete url string for this image.
-        
     # Set base url for call back later
     base_url = 'https://www.jpl.nasa.gov'
-        
+    
     # Set url for use in scrape
     JPL_url = "https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars"
     browser.visit(JPL_url)
-        
+    
     # Scrape page into Soup
     soup = bs(browser.html,"html.parser")
-        
+    
     # Get Featured image based on html tags 
     featured_img = soup.find("div", class_="carousel_items").find("article")
-        
+    
     # Create url for featured image
     featured_img_url = base_url+featured_img['style'].split(':')[1].split('\'')[1]
-     
-    # Print to verify everything is there
-    print (featured_img_url)
-        
-    # Close the browser after scraping
-    #browser.quit()
+    
+    return ('featured_img_url')
 
-    scrape_info['featured_img_url']=featured_img_url
+scrape_info_feature()
 
+def scrape_info_weather():
+    browser = init_browser()
 
-    # In[7]:
-
-
-    # Mars Weather
-    # * Visit the Mars Weather twitter account here and scrape the latest Mars weather tweet from the page. 
-    #   Save the tweet text for the weather report as a variable called mars_weather.
-        
     # Set url for use in scrape
     twitter_url = "https://twitter.com/marswxreport?lang=en"
     browser.visit(twitter_url)
-        
+    
     # Scrape page into Soup
     soup = bs(browser.html,"html.parser")
-        
+    
     # Find all elements that contain tweets based on html tags 
     latest_tweets = soup.find_all('div', class_='js-tweet-text-container')
-        
+    
     # When I was looking for weather tweets, the first tweet was a retweet not about what I needed
     # for this project. Spent a lot of time trying to find a way to distinguish retweets and tweets
     # with weather data, there was not a difference in the html code, so had to write a for loop to
@@ -134,26 +103,18 @@ def scrape_info():
     for tweet in latest_tweets: 
         weather_tweet = tweet.find('p').text
         if 'Sol' and 'high' in weather_tweet:
-            print(weather_tweet)
             break
         else: 
             pass
-        
-    # Close the browser after scraping
-    #browser.quit() 
 
-    scrape_info['weather_tweet']=weather_tweet
+    return ('weather_tweet')
 
+scrape_info_weather()
 
-    # In[8]:
+def scrape_info_facts():
+    browser = init_browser()
 
-
-    # Mars Facts
-    # * Visit the Mars Facts webpage here and use Pandas to scrape the table containing facts about the 
-    #   planet including Diameter, Mass, etc.
-    # * Use Pandas to convert the data to a HTML table string.
-
-    # Set url for use in scrape
+ # Set url for use in scrape
     Mars_facts_url = "https://space-facts.com/mars/"
 
     #Read the html
@@ -169,40 +130,18 @@ def scrape_info():
     Mars_facts_df = Mars_facts_df.iloc[1:]
     Mars_facts_df.set_index("Description", inplace=True)
 
-    # Show the set to verify everything is there before turning into html 
-    Mars_facts_df
-
-    # Close the browser after scraping
-    #browser.quit()
-
-
-    # In[9]:
-
-
     # Convert to html
     mars_facts_html = Mars_facts_df.to_html(header=False, index=False)
 
     # Remove \n from the code 
     mars_facts_html = mars_facts_html.replace('\n', '')
 
-    # Print to verify everything is there
-    mars_facts_html
+    return ('mars_facts_html')
 
-    scrape_info['mars_facts_html']=mars_facts_html
+scrape_info_facts()
 
-
-    # In[10]:
-
-
-    # Mars Hemispheres
-    # * Visit the USGS Astrogeology site here to obtain high resolution images for each of Mar's hemispheres.
-    # * You will need to click each of the links to the hemispheres in order to find the image url to the 
-    #   full resolution image.
-    # * Save both the image url string for the full resolution hemisphere image, and the Hemisphere title 
-    #   containing the hemisphere name. Use a Python dictionary to store the data using the keys img_url 
-    #   and title.
-    # * Append the dictionary with the image url string and the hemisphere title to a list. This list will 
-    #   contain one dictionary for each hemisphere.
+def scrape_info_hemi():
+    browser = init_browser()
 
     # Set base url for call back later
     base_hemisphere_url = "https://astrogeology.usgs.gov"
@@ -233,17 +172,7 @@ def scrape_info():
         image_url = downloads.find("a")["href"]
         hemisphere_image_urls.append({"title": title, "img_url": image_url})
 
-    # Print to verify everything is there
-    print (hemisphere_image_urls)
+    return ('hemisphere_image_urls')
 
-    # Close the browser after scraping
-    browser.quit()
+scrape_info_hemi()
 
-    scrape_info['hemisphere_image_urls']=hemisphere_image_urls
-
-
-    # In[11]:
-
-
-    print(scrape_info)
-    return scrape_info
