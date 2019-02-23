@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Mission to Mars</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div clas="container">
+            <div class="jumbotron">
+                <h1 align="center">Mission to Mars</h1>
+                
+                <p align="Center">
+                    <a class="btn btn-primary btn-lg" href="#" role="button">Scrape New Data</a>
+                </p>
+            </div>
+            <div class="page-header">
+                <h2>Latest Mars News</h2>
+            </div>
+    </div>  
+
+            {% for data in mars %} 
+            <div class="container-fluid">
+                <h3>{{scrape_info_news.news_title}}</h3>
+                <p>{{scrape_info_news.news_content}}</p>
+            </div>
+
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-7">
+                        <h3>Featured Image</h3>
+                        
+                        <img src="{{scrape_info_feature.featured_img_url}}" alt="featured image" style="width: 80%;">
+
+                    </div>
+                    <div class="col-md-5">
+                        <ul>
+                            <h3>Current Mars Weather</h3>
+                            {{scrape_info_weather.weather_tweet}}
+                        </ul>
+                            
+                            
+                        <ul>
+                            <h3>Mars Facts</h3>
+                            {{scrape_info_facts.mars_facts_html|safe}}
+                            <a href="{{scrape_info_facts.mars_facts_html}}"></a>
+                        </ul>
+                    </div>
+                </div>                 
+            </div>
+            
+            <div class="container-fluid">
+                <H3 align="center">Mars Hemispheres</H3>
+                <div class="body">
+                <div class="row">
+                    <div class="col-md-6">
+                        {% for hemisphere in scrape_info_hemi.hemisphere_image_urls[0:2] %}
+                        
+                        <img src="{{hemisphere['image url']}}" alt="hemisphere" style="width:50%;">
+                        <div class="caption"style="font-weight: bold;">
+                            {{hemisphere['image title']}}
+                        </div>                                           
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        {% for hemisphere in scrape_info_hemi.hemisphere_image_urls[2:4] %}
+                        
+                        <img src="{{hemisphere['image url']}}" alt="hemisphere" style="width:50%;">
+                        <div class="caption" style="font-weight: bold;">
+                            {{hemisphere['image title']}}
+                        </div>                                           
+                        {% endfor %}
+
+
+                    </div>
+                </div>
+                </div>
+
+            </div>
+            
+            
+            {% endfor %}              
+                         
+        </div>
+        
+    </div>
+
+</body>
+</html>
